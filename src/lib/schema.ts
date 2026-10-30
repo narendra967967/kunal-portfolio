@@ -16,7 +16,7 @@ export function personSchema() {
     description: person.description,
     email: `mailto:${person.email}`,
     url: abs('/'),
-    image: abs('/icon-512.png'),
+    image: abs('/profile-512.png'),
     address: { '@type': 'PostalAddress', addressCountry: person.country },
     worksFor: { '@type': 'Organization', name: person.employer },
     alumniOf: { '@type': 'CollegeOrUniversity', name: education.school },

@@ -14,6 +14,7 @@ Personal portfolio website of a Staff / Lead Software Engineer. Built with [Astr
 | `npm run check:seo` | After a build: titles, descriptions, one `<h1>`, canonical, JSON-LD and internal links on every page |
 | `npm run size` | After a build: gzipped JS/CSS sizes against the performance budget |
 | `npm run og` | Regenerate the social share image `public/og/default.png` |
+| `npm run icons` | Regenerate the favicon set and `public/profile-512.png` |
 
 ### Resume PDF
 

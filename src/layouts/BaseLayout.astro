@@ -40,10 +40,11 @@ const jsonLd = graph(personSchema(), websiteSchema(), ...schema);
     <meta name="theme-color" content="#F3F2E6" />
     <meta name="color-scheme" content="light dark" />
 
-    <link rel="icon" href={href('/favicon.ico')} sizes="48x48" />
-    <link rel="icon" type="image/png" sizes="32x32" href={href('/favicon-32.png')} />
-    <link rel="icon" type="image/png" sizes="16x16" href={href('/favicon-16.png')} />
-    <link rel="apple-touch-icon" href={href('/apple-touch-icon.png')} />
+    <!-- Bump ?v= when the icons change: browsers cache favicons very aggressively. -->
+    <link rel="icon" href={href('/favicon.ico?v=2')} sizes="16x16 32x32 48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href={href('/favicon-32.png?v=2')} />
+    <link rel="icon" type="image/png" sizes="16x16" href={href('/favicon-16.png?v=2')} />
+    <link rel="apple-touch-icon" href={href('/apple-touch-icon.png?v=2')} />
     <link rel="manifest" href={href('/site.webmanifest')} />
     <link rel="sitemap" href={href('/sitemap-index.xml')} />
     {markdown && <link rel="alternate" type="text/markdown" href={href(markdown)} title="Markdown version" />}
