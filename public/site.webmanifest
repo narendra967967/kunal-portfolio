@@ -1,0 +1,13 @@
+{
+  "name": "Kunal Prakash · Staff / Lead Software Engineer",
+  "short_name": "Kunal Prakash",
+  "start_url": "./",
+  "scope": "./",
+  "display": "browser",
+  "background_color": "#F3F2E6",
+  "theme_color": "#7F6314",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -1,0 +1,133 @@
+---
+// Web resume on an A4 sheet: Crimson Text, grey section bands, bold highlights.
+// The PDF download is a print of this page.
+import '@fontsource/crimson-text/latin-400.css';
+import '@fontsource/crimson-text/latin-400-italic.css';
+import '@fontsource/crimson-text/latin-700.css';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { resume as r, resumePdfFile } from '../data/resume';
+import { person } from '../data/profile';
+import { breadcrumbSchema, profilePageSchema } from '../lib/schema';
+import { href } from '../lib/url';
+---
+<BaseLayout
+  title="Resume"
+  description={`Resume of ${person.name}, ${person.jobTitle}: HT Digital Streams and Infosys, plus core competencies and education.`}
+  path="/resume/"
+  markdown="/resume.md"
+  type="profile"
+  schema={[profilePageSchema('/resume/', `${person.name} · Resume`), breadcrumbSchema([['Home', '/'], ['Resume', '/resume/']])]}
+>
+  <div class="container wrap">
+    <div class="actions no-print">
+      <p class="kicker">Resume</p>
+      <div class="btns">
+        <a class="btn pri" href={href(resumePdfFile)} download><Icon name="download" />Download PDF</a>
+        <a class="btn" href={href('/resume.md')} target="_blank" rel="noopener"><Icon name="file-text" />Markdown <Icon name="arrow-up-right" size={14} /></a>
+        <a class="btn" href={href('/resume.json')} target="_blank" rel="noopener"><Icon name="file-text" />JSON Resume <Icon name="arrow-up-right" size={14} /></a>
+      </div>
+    </div>
+
+    <article class="cv" aria-labelledby="cv-name">
+      <header class="cv-head">
+        <h1 id="cv-name">{r.name} <span class="ttl">{r.title}</span></h1>
+        <ul class="contact" role="list">
+          <li><Icon name="mail" size={13} /><a href={`mailto:${r.email}`}>{r.email}</a></li>
+          <li><Icon name="map-pin" size={13} />{r.location}</li>
+        </ul>
+        {(person.linkedin || person.github) && (
+          <ul class="contact" role="list">
+            {person.linkedin && (
+              <li>
+                <svg class="icon" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><rect width="16" height="16" rx="2.5" fill="currentColor"/><text x="3" y="12.6" font-size="10.5" font-weight="700" font-family="Arial, sans-serif" fill="#fff">in</text></svg>
+                <a class="lnk" href={person.linkedin} rel="me">{person.linkedin}</a>
+              </li>
+            )}
+            {person.github && (
+              <li>
+                <svg class="icon" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                <a class="lnk" href={person.github} rel="me">{person.github}</a>
+              </li>
+            )}
+          </ul>
+        )}
+      </header>
+
+      <p class="summary" set:html={r.summary} />
+
+      <section aria-labelledby="cv-ach">
+        <h2 id="cv-ach">Achievements</h2>
+        <ul class="list in">{r.achievements.map((a) => <li set:html={a} />)}</ul>
+      </section>
+
+      <section aria-labelledby="cv-skills">
+        <h2 id="cv-skills">Core Competencies</h2>
+        <ul class="list in">{r.skills.map(([k, v]) => <li><b>{k}:</b> {v}</li>)}</ul>
+      </section>
+
+      <section aria-labelledby="cv-exp">
+        <h2 id="cv-exp">Professional Experience</h2>
+        {r.experience.map((e) => (
+          <div class="item">
+            <div class="row"><b>{e.role}</b><span class="when"><b>{e.date}</b>{e.place && <> <span class="bar">|</span> {e.place}</>}</span></div>
+            <div class="row"><i>{e.org}</i></div>
+            <ul class="list">{e.bullets.map((b) => <li set:html={b} />)}</ul>
+          </div>
+        ))}
+      </section>
+
+      <section aria-labelledby="cv-edu">
+        <h2 id="cv-edu">Education</h2>
+        <div class="item"><div class="row"><b>{r.education.school}</b><span class="when"><b>{r.education.period}</b></span></div><div class="row"><i>{r.education.degree}</i></div></div>
+      </section>
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .wrap { padding-block: clamp(20px, 3.5vw, 40px) clamp(32px, 4.5vw, 56px); display: flex; flex-direction: column; gap: 18px; max-width: 900px; }
+  .actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* The sheet: an A4 page in the PDF's typography (Crimson Text, 11pt on 12pt, 10mm margins). Always paper-white. */
+  .cv {
+    width: 100%; max-width: 210mm; margin-inline: auto; background: #fff; color: #000;
+    padding: 10mm; border-radius: 4px; box-shadow: var(--shadow-lg);
+    font-family: 'Crimson Text', Georgia, 'Times New Roman', serif; font-size: 11pt; line-height: 12.5pt;
+  }
+  .cv a { color: inherit; text-decoration: none; }
+  .cv .lnk { color: #0939AA; }
+  .cv b { font-weight: 700; }
+  .cv i { font-style: italic; }
+  .cv-head { display: flex; flex-direction: column; gap: 5pt; }
+  h1 { margin: 0 0 4pt; font-size: 19pt; line-height: 1.15; font-weight: 400; letter-spacing: 0; text-wrap: wrap; }
+  .ttl { font-size: 13pt; font-style: italic; margin-left: 6pt; }
+  .contact { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 3pt 18pt; }
+  .contact li { display: inline-flex; align-items: center; gap: 5pt; min-width: 0; overflow-wrap: anywhere; }
+  .contact :global(.icon) { width: 9pt; height: 9pt; flex: 0 0 auto; color: #000; stroke-width: 2.6; }
+  .summary { margin: 13pt 0 0; }
+  h2 { margin: 12pt 0 7pt; padding: 1.5pt 0; background: #EBEBEB; text-align: center; font-size: 12pt; line-height: 15pt; font-weight: 700; font-family: inherit; letter-spacing: 0; text-transform: none; color: #000; border: 0; }
+  .list { margin: 2pt 0 0; padding-left: 10pt; }
+  .list.in { padding-left: 18pt; }
+  .list li { padding-left: 1pt; }
+  .list li + li { margin-top: 0; }
+  .item + .item { margin-top: 7pt; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 4pt 12pt; flex-wrap: wrap; }
+  .when { text-align: right; margin-left: auto; }
+  .bar { margin-inline: 2pt; }
+
+  @media (max-width: 640px) {
+    .cv { padding: 18px 16px; }
+    .when { margin-left: 0; text-align: left; }
+  }
+  @media print {
+    :global(body) { background: #fff !important; padding: 0 !important; }
+    :global(.nav), :global(.foot), :global(.skip), .no-print { display: none !important; }
+    .wrap { padding: 0; max-width: none; }
+    .cv { box-shadow: none; padding: 0; max-width: none; }
+    .item, .list li { break-inside: avoid; }
+    h2 { break-after: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+  @page { size: A4; margin: 10mm; }
+</style>

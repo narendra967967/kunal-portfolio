@@ -1,0 +1,48 @@
+---
+import { pipeline } from '../data/profile';
+/** `heading` may contain one <em> for the theme-colour emphasis. */
+interface Props { id?: string; heading?: string; intro?: string; level?: 'h1' | 'h2' }
+const {
+  id = 'delivery',
+  heading = 'From audit to <em>scale</em>',
+  intro = 'How I approach a platform, and what I use at each stage.',
+} = Astro.props;
+---
+<section class="container sec" id={id} aria-labelledby={`${id}-h`}>
+  <header class="sec-head">
+    <p class="kicker">How I engineer</p>
+    <h2 id={`${id}-h`} set:html={heading} />
+    <p>{intro}</p>
+  </header>
+  <ol class="pipe" data-progress role="list">
+    <li class="pipe-line" aria-hidden="true"><i></i></li>
+    {pipeline.map((s) => (
+      <li class="stage-s">
+        <span class="n" aria-hidden="true">{s.n}</span>
+        <h3>{s.title}</h3>
+        <p>{s.text}</p>
+        <ul class="arts" aria-label="Outputs">{s.arts.map((a) => <li>{a}</li>)}</ul>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .pipe { position: relative; list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; --p: 0; }
+  .pipe-line { position: absolute; left: 18px; right: 18px; top: 17px; height: 3px; border-radius: 3px; background: var(--line); }
+  .pipe-line i { position: absolute; inset: 0; border-radius: 3px; background: var(--brand-2); transform-origin: left; transform: scaleX(var(--p)); }
+  .stage-s { position: relative; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .n { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; font-family: var(--mono); font-size: 12.5px; font-weight: 600; background: var(--surface); border: 1.5px solid var(--line-2); color: var(--dim); transition: all .3s; position: relative; z-index: 1; }
+  :global(.stage-s.on) .n { border-color: var(--brand); color: var(--brand-ink); background: var(--brand); }
+  h3 { margin: 4px 0 0; font-size: 16.5px; font-weight: 700; }
+  p { margin: 0; font-size: 14px; color: var(--dim); }
+  .arts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .arts li { font-family: var(--mono); font-size: 10.5px; padding: 3px 8px; border-radius: 6px; background: var(--surface); border: 1px solid var(--line); color: var(--dim); }
+  @media (max-width: 980px) {
+    .pipe { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-left: 54px; }
+    .pipe-line { left: 17px; right: auto; top: 18px; bottom: 18px; width: 3px; height: auto; }
+    .pipe-line i { transform-origin: top; transform: scaleY(var(--p)); }
+    .n { position: absolute; left: -54px; top: 0; }
+    h3 { margin-top: 6px; }
+  }
+</style>

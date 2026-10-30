@@ -1,0 +1,112 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ContactCTA from '../../components/ContactCTA.astro';
+import Icon from '../../components/Icon.astro';
+import { articleSchema, breadcrumbSchema } from '../../lib/schema';
+import { href } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const work = (await getCollection('work')).sort((a, b) => a.data.order - b.data.order);
+  return work.map((entry, i) => ({ params: { slug: entry.id }, props: { entry, next: work[(i + 1) % work.length] } }));
+}
+
+interface Props { entry: CollectionEntry<'work'>; next: CollectionEntry<'work'> }
+const { entry, next } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+const path = `/work/${entry.id}/`;
+---
+<BaseLayout
+  title={d.seoTitle}
+  description={d.description}
+  path={path}
+  markdown={`/work/${entry.id}.md`}
+  type="article"
+  schema={[
+    articleSchema({ path, title: d.title, description: d.description, published: d.published, updated: d.updated, tags: d.tags }),
+    breadcrumbSchema([['Home', '/'], ['Work', '/work/'], [d.shortTitle, path]]),
+  ]}
+>
+  <article class="container cs">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a href={href('/')}>Home</a></li>
+        <li><a href={href('/work/')}>Work</a></li>
+        <li aria-current="page">{d.shortTitle}</li>
+      </ol>
+    </nav>
+
+    <header class="head" style={`view-transition-name: report-${entry.id}`}>
+      <div class="meta"><span class="kicker">Case study · {d.company} · {d.period}</span><span class={`pill ${d.status.tone}`}>{d.status.label}</span></div>
+      <h1>{d.title}</h1>
+      <p class="lede">{d.description.replace(/^How Kunal Prakash /, 'How I ')}</p>
+      <ul class="tags" aria-label="Topics">{d.tags.map((t) => <li>{t}</li>)}</ul>
+    </header>
+
+    <div class="layout">
+      <aside class="snap" aria-labelledby="snap-h">
+        <h2 id="snap-h" class="snap-h"><Icon name="file-text" />Snapshot</h2>
+        <dl>
+          {d.snapshot.map((s) => <div><dt>{s.label}</dt><dd>{s.value}</dd></div>)}
+        </dl>
+        <div class="out"><b>{d.outcome.value}</b><span>{d.outcome.label}</span></div>
+        {d.trail && (
+          <div class="trail" role="img" aria-label="Status trail: red, then amber, then green">
+            <i class="r"></i><s></s><i class="a"></i><s></s><i class="g"></i>
+          </div>
+        )}
+      </aside>
+      <div class="prose body">
+        <Content />
+      </div>
+    </div>
+
+    <a class="next" href={href(`/work/${next.id}/`)}>
+      <span class="lbl">Next case study</span>
+      <span class="t">{next.data.title}</span>
+      <Icon name="arrow-right" size={20} />
+    </a>
+  </article>
+  <ContactCTA />
+</BaseLayout>
+
+<style>
+  .cs { padding-block: clamp(20px, 3.5vw, 40px) 0; display: flex; flex-direction: column; gap: clamp(20px, 2.6vw, 30px); }
+  .crumbs ol { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; font-size: 13.5px; color: var(--dim); }
+  .crumbs li + li::before { content: '/'; margin-right: 8px; color: var(--faint); }
+  .crumbs a { text-decoration: none; }
+  .crumbs a:hover { color: var(--brand); text-decoration: underline; }
+  .crumbs [aria-current] { color: var(--fg); font-weight: 500; }
+  .head { display: flex; flex-direction: column; gap: 12px; }
+  .meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  /* Same size as the home page section headings. */
+  h1 { margin: 0; font-size: clamp(28px, 3.6vw, 42px); line-height: 1.12; letter-spacing: -.022em; text-wrap: balance; }
+  .lede { margin: 0; font-size: clamp(16px, 1.5vw, 18px); color: var(--dim); }
+  .tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .tags li { font-size: 13px; font-weight: 500; padding: 4px 12px; border-radius: 999px; background: var(--brand-soft); color: var(--brand); }
+
+  .layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: start; }
+  @media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .snap { position: sticky; top: 84px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+  @media (max-width: 860px) { .snap { position: static; } }
+  .snap-h { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; }
+  .snap-h :global(.icon) { color: var(--brand); }
+  dl { margin: 0; display: flex; flex-direction: column; }
+  dl div { display: grid; grid-template-columns: 100px minmax(0, 1fr); gap: 10px; padding: 9px 0; border-top: 1px solid var(--line); }
+  dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; color: var(--faint); text-transform: uppercase; padding-top: 3px; }
+  dd { margin: 0; font-size: 14px; }
+  .out { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 2px; }
+  .out b { font-size: 34px; line-height: 1.05; font-weight: 700; color: var(--brand); letter-spacing: -.02em; }
+  .out span { font-size: 14px; color: var(--dim); }
+  .trail { display: flex; align-items: center; gap: 8px; }
+  .trail i { width: 12px; height: 12px; border-radius: 50%; }
+  .trail .r { background: var(--bad); } .trail .a { background: var(--risk); } .trail .g { background: var(--ok); }
+  .trail s { flex: 0 0 22px; height: 2px; background: var(--line-2); }
+
+  .next { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 16px; padding: 20px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); text-decoration: none; box-shadow: var(--shadow); transition: border-color .2s, transform .2s; }
+  .next:hover { border-color: var(--brand-2); transform: translateY(-2px); }
+  .next .lbl { grid-column: 1; font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--faint); text-transform: uppercase; }
+  .next .t { grid-column: 1; font-size: 19px; font-weight: 700; }
+  .next :global(.icon) { grid-column: 2; grid-row: 1 / span 2; color: var(--brand); }
+</style>

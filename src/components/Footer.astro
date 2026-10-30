@@ -1,0 +1,22 @@
+---
+import { nav, person } from '../data/profile';
+import { href } from '../lib/url';
+const built = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+---
+<footer class="container foot">
+  <span>© <span data-year>{new Date().getFullYear()}</span> {person.name} · {person.location}</span>
+  <nav aria-label="Footer">
+    {nav.map(([p, label]) => <a href={href(p)}>{label}</a>)}
+    <a href={href('/llms.txt')}>llms.txt</a>
+    <a href={href('/sitemap-index.xml')}>Sitemap</a>
+  </nav>
+  <span class="upd">Updated {built}</span>
+</footer>
+
+<style>
+  .foot { border-top: 1px solid var(--line); padding-block: 22px 40px; display: flex; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; font-size: 13px; color: var(--faint); }
+  nav { display: flex; gap: 18px; flex-wrap: wrap; }
+  a { text-decoration: none; }
+  a:hover { color: var(--brand); }
+  .upd { font-family: var(--mono); font-size: 12px; }
+</style>

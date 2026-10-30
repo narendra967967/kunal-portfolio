@@ -1,0 +1,51 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Icon from './Icon.astro';
+import { href } from '../lib/url';
+
+interface Props { entry: CollectionEntry<'work'>; level?: 'h2' | 'h3' }
+const { entry, level = 'h3' } = Astro.props;
+const d = entry.data;
+const Heading = level;
+const url = href(`/work/${entry.id}/`);
+---
+<article class="report" data-t={d.filters.join(' ')} style={`view-transition-name: report-${entry.id}`}>
+  <div class="r-top"><span>{d.company.split(' ')[0].toUpperCase()} · {d.period}</span><span class={`pill ${d.status.tone}`}>{d.status.label}</span></div>
+  <div class="r-main">
+    <Heading class="title"><a href={url}>{d.title}</a></Heading>
+    <dl class="r-fields">
+      {d.fields.map((f) => <div><dt>{f.label}</dt><dd>{f.value}</dd></div>)}
+    </dl>
+    {d.trail && (
+      <div class="trail" role="img" aria-label="Status trail: red, then amber, then green">
+        <i class="r"></i><s></s><i class="a"></i><s></s><i class="g"></i><span aria-hidden="true">STATUS TRAIL</span>
+      </div>
+    )}
+    <div class="r-out"><b>{d.outcome.value}</b><span>{d.outcome.label}</span></div>
+  </div>
+  <span class="r-link" aria-hidden="true">Read case study <Icon name="arrow-right" /></span>
+</article>
+
+<style>
+  .report { position: relative; border: 1px solid var(--line); background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s, border-color .2s; overflow: hidden; }
+  .report:hover, .report:focus-within { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--brand-2); }
+  .r-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 18px; border-bottom: 1px solid var(--line); background: var(--surface-2); font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; color: var(--dim); }
+  .r-main { padding: 18px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+  .title { margin: 0; font-size: 20px; line-height: 1.28; font-weight: 700; letter-spacing: -.01em; }
+  .title a { text-decoration: none; }
+  .title a::after { content: ''; position: absolute; inset: 0; z-index: 1; border-radius: 16px; }
+  .title a:focus-visible { outline: none; }
+  .report:has(.title a:focus-visible) { outline: 2px solid var(--brand); outline-offset: 3px; }
+  .r-fields { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  .r-fields div { display: grid; grid-template-columns: 82px minmax(0, 1fr); gap: 10px; }
+  .r-fields dt { font-family: var(--mono); font-size: 10.5px; letter-spacing: .09em; color: var(--faint); text-transform: uppercase; padding-top: 3px; }
+  .r-fields dd { margin: 0; font-size: 14.5px; }
+  .r-out { margin-top: auto; border-top: 1px solid var(--line); padding-top: 14px; display: flex; align-items: baseline; gap: 12px; }
+  .r-out b { font-size: 30px; font-weight: 700; color: var(--brand); letter-spacing: -.02em; white-space: nowrap; }
+  .r-out span { font-size: 14px; color: var(--dim); }
+  .trail { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; color: var(--faint); }
+  .trail i { width: 11px; height: 11px; border-radius: 50%; }
+  .trail .r { background: var(--bad); } .trail .a { background: var(--risk); } .trail .g { background: var(--ok); }
+  .trail s { flex: 0 0 18px; height: 2px; background: var(--line-2); }
+  .r-link { display: flex; align-items: center; gap: 8px; padding: 13px 18px; border-top: 1px solid var(--line); font-weight: 600; font-size: 14px; color: var(--brand); }
+</style>

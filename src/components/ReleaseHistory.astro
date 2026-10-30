@@ -1,0 +1,44 @@
+---
+import { experience } from '../data/profile';
+---
+<section class="container sec" id="history" aria-labelledby="history-h">
+  <header class="sec-head">
+    <p class="kicker">Experience</p>
+    <h2 id="history-h">My <em>career</em> so far</h2>
+    <p>Four roles in seven years, from Senior System Engineer to Tech Lead.</p>
+  </header>
+  <ol class="history" data-progress role="list">
+    <li class="h-fill" aria-hidden="true"></li>
+    {experience.map((e) => (
+      <li class="rel">
+        <div class="ver"><b>{e.years}</b><span>{e.period.toUpperCase()}</span></div>
+        <div>
+          <h3>{e.title} <span>· {e.company}</span></h3>
+          <ul>
+            {e.short.map((s) => <li set:html={s} />)}
+          </ul>
+        </div>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .history { position: relative; list-style: none; margin: 0; padding: 0 0 0 32px; display: flex; flex-direction: column; --p: 0; }
+  .history::before, .h-fill { content: ''; position: absolute; left: 7px; top: 10px; bottom: 10px; width: 3px; border-radius: 3px; }
+  .history::before { background: var(--line); }
+  .h-fill { background: var(--brand-2); transform-origin: top; transform: scaleY(var(--p)); }
+  .rel { position: relative; display: grid; grid-template-columns: 170px minmax(0, 1fr); gap: 8px 28px; padding: 20px; margin-bottom: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+  .rel::before { content: ''; position: absolute; left: -32px; top: 26px; width: 17px; height: 17px; border-radius: 50%; background: var(--surface); border: 3px solid var(--brand-2); }
+  .rel:nth-child(2)::before { background: var(--brand-2); }
+  @media (max-width: 700px) { .rel { grid-template-columns: minmax(0, 1fr); } }
+  .ver { display: flex; flex-direction: column; gap: 4px; }
+  .ver b { font-family: var(--mono); font-size: 18px; font-weight: 500; color: var(--brand); white-space: nowrap; }
+  .ver span { font-family: var(--mono); font-size: 11.5px; letter-spacing: .05em; color: var(--dim); }
+  h3 { margin: 0 0 8px; font-size: 19px; font-weight: 700; }
+  h3 span { color: var(--dim); font-weight: 500; }
+  ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  ul li { position: relative; padding-left: 22px; color: var(--dim); font-size: 15px; }
+  ul li::before { content: '✓'; position: absolute; left: 0; color: var(--ok); font-weight: 700; }
+  ul :global(b) { color: var(--fg); font-weight: 600; }
+</style>

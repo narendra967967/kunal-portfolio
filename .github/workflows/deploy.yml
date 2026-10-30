@@ -1,0 +1,57 @@
+name: Deploy narendragupta.in
+
+# Build on GitHub, then publish to the server over SSH as the `portfolio` user
+# (deploy/vps/publish.sh, deploy/VPS.md).
+# Paused: no push trigger, and the job below is off, until this site has its own
+# domain and server path. It still targets narendragupta.in and /srv/portfolio.
+on:
+  workflow_dispatch:
+
+# One deploy at a time.
+concurrency:
+  group: deploy-portfolio
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SITE_URL: https://narendragupta.in
+  BASE_PATH: /
+
+jobs:
+  build-and-deploy:
+    if: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install, check and build
+        run: |
+          set -euo pipefail
+          npm ci --no-audit --no-fund
+          npm run check
+          npm run build
+          node scripts/check-seo.mjs
+
+      - name: Publish to the server over SSH
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_USER: ${{ secrets.VPS_USER }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+          VPS_KNOWN_HOSTS: ${{ secrets.VPS_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$VPS_SSH_KEY" > ~/.ssh/vps_key
+          printf '%s\n' "$VPS_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/vps_key ~/.ssh/known_hosts
+          printf 'Host vps\n  HostName %s\n  User %s\n  IdentityFile ~/.ssh/vps_key\n  StrictHostKeyChecking yes\n' \
+            "$VPS_HOST" "$VPS_USER" > ~/.ssh/config
+          tar -C dist -czf - . | ssh vps "cat > /srv/portfolio/incoming/${GITHUB_SHA}.tgz"
+          ssh vps "bash -s -- ${GITHUB_SHA}" < deploy/vps/publish.sh

@@ -1,0 +1,104 @@
+---
+import { Image } from 'astro:assets';
+import Icon from './Icon.astro';
+import heroImg from '../assets/profile/portrait.png';
+import { person, toolStrip, resumePdf, boldSummary } from '../data/profile';
+import { href } from '../lib/url';
+---
+<section class="container hero">
+  <header class="top">
+    <p class="status"><i class="live" aria-hidden="true"></i><b>Open to roles</b><span>· Senior/Staff Engineer, Tech Lead, Architect</span></p>
+    <h1>I build <span class="hl">high-performance web</span> ecosystems that scale to 20M+ monthly users, without sacrificing velocity or reliability.</h1>
+  </header>
+  <div class="copy">
+    <p class="sub" set:html={boldSummary(person.summary.join(' '))} />
+    <div class="ctas">
+      <a class="btn pri" href={href('/work/')}>View case studies <Icon name="arrow-right" /></a>
+      <a class="btn" href={href(resumePdf)} download><Icon name="download" />Download resume</a>
+    </div>
+    <div class="toolstrip">
+      <span class="lbl">BUILDS WITH</span>
+      <ul class="chips" role="list">
+        {toolStrip.map(([m, n]) => <li class="tchip"><i class="mono-ic" aria-hidden="true">{m}</i>{n}</li>)}
+      </ul>
+    </div>
+  </div>
+
+  <div class="stage" id="stage">
+    <Image class="photo" src={heroImg} format="webp" quality={82} alt={person.name} widths={[320, 480, 800]} sizes="(max-width: 560px) 320px, 400px" loading="eager" fetchpriority="high" />
+    <div class="float f1" data-depth="14" aria-hidden="true">
+      <span class="t">MONTHLY USERS</span>
+      <b data-count="20" data-suf="M+">20M+</b>
+    </div>
+    <div class="float f2" data-depth="22" aria-hidden="true">
+      <div class="okrow"><span class="ic"><Icon name="check" size={17} /></span><div><strong>Core Web Vitals</strong><span>+30% LCP, +35% INP</span></div></div>
+    </div>
+    <div class="float f3" data-depth="10" aria-hidden="true">
+      <span class="t">SPRINT VELOCITY</span>
+      <div class="row"><b data-count="25" data-pre="+" data-suf="%">+25%</b>
+        <span class="stack"><i style="background:#7F6314">AI</i><i style="background:#4F5F45">CU</i><i style="background:#2A2426">CP</i></span></div>
+    </div>
+    <div class="float f4" data-depth="18" aria-hidden="true">
+      <span class="t">NPM PACKAGES</span>
+      <b data-count="8" data-suf="+">8+</b>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Headline spans the full width; summary (left) and photo (right) sit below it. */
+  .hero {
+    display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr);
+    grid-template-areas: 'top top' 'copy stage';
+    column-gap: clamp(28px, 4vw, 56px); row-gap: clamp(18px, 2.4vw, 28px);
+    align-items: start; padding-block: clamp(24px, 4vw, 48px) clamp(20px, 3vw, 32px);
+  }
+  .top { grid-area: top; display: flex; flex-direction: column; gap: 18px; }
+  .copy { grid-area: copy; display: flex; flex-direction: column; gap: 22px; }
+  .stage { grid-area: stage; }
+  @media (max-width: 940px) { .hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'top' 'copy' 'stage'; } }
+  .top > *, .copy > * { animation: rise .7s cubic-bezier(.2,.7,.2,1) both; }
+  .top > :nth-child(2) { animation-delay: .06s; }
+  .copy > :nth-child(1) { animation-delay: .12s; } .copy > :nth-child(2) { animation-delay: .18s; } .copy > :nth-child(3) { animation-delay: .24s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } }
+  .status { margin: 0; align-self: flex-start; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13px; font-weight: 500; color: var(--dim); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px 6px 10px; box-shadow: var(--shadow); }
+  .status { gap: 6px; }
+  .status .live { margin-right: 4px; }
+  .status b { color: var(--ok); }
+  .live { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); animation: ping 2.2s infinite; }
+  @keyframes ping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 55%, transparent); } 70% { box-shadow: 0 0 0 9px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+  /* Sized with the viewport so the headline always sets on two balanced lines on desktop. */
+  h1 { margin: 0; font-weight: 700; font-size: clamp(30px, 3.3vw, 44px); line-height: 1.1; letter-spacing: -.028em; text-wrap: balance; }
+  .hl { color: var(--brand); position: relative; white-space: nowrap; isolation: isolate; }
+  .hl::after { content: ''; position: absolute; left: 0; right: 0; bottom: .04em; height: .14em; background: var(--brand-soft); z-index: -1; }
+  .sub { margin: 0; color: var(--dim); font-size: clamp(15.5px, 1.45vw, 17px); line-height: 1.65; max-width: 62ch; }
+  .sub :global(strong) { color: var(--brand); font-weight: 600; }
+  .ctas { display: flex; gap: 10px; flex-wrap: wrap; }
+  .toolstrip { display: flex; flex-direction: column; gap: 10px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--faint); }
+  .toolstrip ul { list-style: none; margin: 0; padding: 0; }
+
+  .stage { position: relative; width: 100%; max-width: 440px; margin-inline: auto; aspect-ratio: 1 / 1.04; }
+  /* Centred with auto margins, not a transform, so the hover parallax (GSAP x) can't knock it off centre. */
+  .stage :global(.photo) { position: absolute; top: 4%; left: 0; right: 0; margin-inline: auto; width: 90%; height: auto; max-width: none; z-index: 2; border-radius: 50%; box-shadow: var(--shadow-lg); }
+  .float { position: absolute; z-index: 3; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-lg); padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; min-width: 0; }
+  .t { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--faint); display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+  .float b { font-size: 24px; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .f1 { left: -4%; top: 6%; width: 140px; } .f2 { right: -5%; top: 2%; width: 186px; }
+  .f3 { left: -4%; bottom: 2%; width: 178px; } .f4 { right: -3%; bottom: 8%; width: 130px; }
+  .okrow { display: flex; align-items: center; gap: 10px; }
+  .okrow .ic { width: 30px; height: 30px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; flex: 0 0 auto; }
+  .okrow strong { font-size: 14px; display: block; line-height: 1.25; }
+  .okrow span { color: var(--dim); font-size: 11.5px; }
+  .row { display: flex; align-items: center; gap: 10px; }
+  .stack { display: flex; }
+  .stack i { width: 27px; height: 27px; border-radius: 50%; margin-left: -7px; border: 2px solid var(--surface); display: grid; place-items: center; font-style: normal; font-family: var(--mono); font-size: 8.5px; font-weight: 500; letter-spacing: -.02em; color: #fff; }
+  .stack i:first-child { margin-left: 0; }
+  @media (max-width: 560px) {
+    .stage { max-width: 400px; }
+    .float { padding: 9px 11px; } .float b { font-size: 20px; }
+    .f1 { left: -1%; top: auto; bottom: 2%; width: 126px; }
+    .f2 { right: -1%; top: auto; bottom: 2%; width: 172px; }
+    .f3, .f4 { display: none; }
+  }
+</style>

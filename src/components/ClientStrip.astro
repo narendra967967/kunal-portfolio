@@ -1,0 +1,16 @@
+---
+import { companies } from '../data/profile';
+---
+<section class="container clients" aria-label="Companies">
+  <p class="lbl">Where I've built</p>
+  <ul class="names" role="list">
+    {companies.map((c) => <li>{c}</li>)}
+  </ul>
+</section>
+
+<style>
+  .clients { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 28px; padding: 18px 22px; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+  .lbl { margin: 0; font-size: 13px; color: var(--dim); max-width: 24ch; line-height: 1.35; }
+  .names { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 30px; align-items: center; }
+  .names li { font-weight: 700; font-size: 18px; letter-spacing: .02em; opacity: .8; }
+</style>

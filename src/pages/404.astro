@@ -1,0 +1,24 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
+import { href } from '../lib/url';
+---
+<BaseLayout title="Page not found" description="This page does not exist. Go to the home page, the work index or the resume." path="/404/" noindex>
+  <section class="container nf">
+    <span class="pill bad">404</span>
+    <h1>Page not <span class="hl-em">found</span></h1>
+    <p>The link may be broken, or the page has moved. Try one of these:</p>
+    <div class="links">
+      <a class="btn pri" href={href('/')}><Icon name="house" />Home</a>
+      <a class="btn" href={href('/work/')}><Icon name="list-checks" />Work</a>
+      <a class="btn" href={href('/resume/')}><Icon name="file-text" />Resume</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .nf { min-height: 60vh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 16px; padding-block: 64px; }
+  h1 { margin: 0; font-size: clamp(28px, 3.6vw, 42px); letter-spacing: -.022em; line-height: 1.12; }
+  p { margin: 0; color: var(--dim); font-size: 18px; }
+  .links { display: flex; gap: 10px; flex-wrap: wrap; }
+</style>

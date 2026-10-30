@@ -1,0 +1,48 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ClientStrip from '../components/ClientStrip.astro';
+import Dashboard from '../components/Dashboard.astro';
+import Toolkit from '../components/Toolkit.astro';
+import ReportCard from '../components/ReportCard.astro';
+import Pipeline from '../components/Pipeline.astro';
+import ReleaseHistory from '../components/ReleaseHistory.astro';
+import ContactCTA from '../components/ContactCTA.astro';
+import Icon from '../components/Icon.astro';
+import { profilePageSchema } from '../lib/schema';
+import { person } from '../data/profile';
+import { href } from '../lib/url';
+
+const featured = (await getCollection('work', (e) => e.data.featured)).sort((a, b) => a.data.order - b.data.order);
+const description = `${person.name}, ${person.jobTitle}. Next.js and web performance specialist scaling apps to 20M+ users at HT Digital Streams (Livemint).`;
+---
+<BaseLayout title="Home" description={description} path="/" markdown="/index.md" type="profile" schema={[profilePageSchema('/', `${person.name} · ${person.jobTitle}`)]}>
+  <Hero />
+  <ClientStrip />
+  <Dashboard />
+  <Toolkit />
+
+  <section class="container sec" id="work" aria-labelledby="work-h">
+    <header class="sec-head">
+      <p class="kicker">Case studies</p>
+      <h2 id="work-h">Selected <em>work</em></h2>
+      <p>Three programs I led, with the scope, my role and the result.</p>
+    </header>
+    <div class="reports">
+      {featured.map((e) => <ReportCard entry={e} />)}
+    </div>
+    <a class="all" href={href('/work/')}>See all case studies <Icon name="arrow-right" /></a>
+  </section>
+
+  <Pipeline />
+  <ReleaseHistory />
+  <ContactCTA />
+</BaseLayout>
+
+<style>
+  .reports { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 980px) { .reports { grid-template-columns: minmax(0, 1fr); } }
+  .all { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; color: var(--brand); text-decoration: none; }
+  .all:hover { text-decoration: underline; text-underline-offset: 3px; }
+</style>

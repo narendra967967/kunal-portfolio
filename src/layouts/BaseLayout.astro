@@ -1,0 +1,86 @@
+---
+import '../styles/global.css';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { abs, href } from '../lib/url';
+import { graph, personSchema, websiteSchema } from '../lib/schema';
+import { person } from '../data/profile';
+import plexBold from '@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-700-normal.woff2?url';
+import plexRegular from '@fontsource/ibm-plex-sans/files/ibm-plex-sans-latin-400-normal.woff2?url';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Site-relative path of this page, e.g. '/about/' */
+  path: string;
+  /** Site-relative path of this page's Markdown twin, e.g. '/about.md' */
+  markdown?: string;
+  type?: 'website' | 'article' | 'profile';
+  schema?: object[];
+  noindex?: boolean;
+  ogImage?: string;
+}
+const { title, description, path, markdown, type = 'website', schema = [], noindex = false, ogImage = '/og/default.png' } = Astro.props;
+const fullTitle = path === '/' ? `${person.name} · ${person.jobTitle}` : `${title} · ${person.shortName}`;
+const canonical = abs(path);
+const jsonLd = graph(personSchema(), websiteSchema(), ...schema);
+---
+<!doctype html>
+<html lang="en" data-mode="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="preload" href={plexBold} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={plexRegular} as="font" type="font/woff2" crossorigin />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'} />
+    <meta name="author" content={person.name} />
+    <meta name="theme-color" content="#F3F2E6" />
+    <meta name="color-scheme" content="light dark" />
+
+    <link rel="icon" href={href('/favicon.ico')} sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href={href('/favicon-32.png')} />
+    <link rel="icon" type="image/png" sizes="16x16" href={href('/favicon-16.png')} />
+    <link rel="apple-touch-icon" href={href('/apple-touch-icon.png')} />
+    <link rel="manifest" href={href('/site.webmanifest')} />
+    <link rel="sitemap" href={href('/sitemap-index.xml')} />
+    {markdown && <link rel="alternate" type="text/markdown" href={href(markdown)} title="Markdown version" />}
+    <link rel="alternate" type="text/plain" href={href('/llms.txt')} title="LLM summary" />
+
+    <meta property="og:type" content={type === 'article' ? 'article' : 'profile'} />
+    <meta property="og:site_name" content={person.name} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={abs(ogImage)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${person.name}, ${person.jobTitle}`} />
+    <meta property="og:locale" content="en_IN" />
+    {type !== 'article' && <meta property="profile:first_name" content={person.givenName} />}
+    {type !== 'article' && <meta property="profile:last_name" content={person.familyName} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={abs(ogImage)} />
+
+    <script is:inline>
+      // Light is the default; apply a saved dark choice before first paint to avoid a flash.
+      try { if (localStorage.getItem('kp-mode') === 'dark') document.documentElement.dataset.mode = 'dark'; } catch (e) {}
+    </script>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Nav current={Astro.url.pathname} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/site';
+    </script>
+  </body>
+</html>

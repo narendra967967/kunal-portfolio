@@ -1,0 +1,160 @@
+---
+import Icon from './Icon.astro';
+import { metrics, metricText, programs, programFilters, impact, writing, openTo } from '../data/profile';
+import { href } from '../lib/url';
+
+const impactMax = Math.max(...impact.map((i) => i.value));
+---
+<section class="container sec" id="dashboard" aria-labelledby="dash-h">
+  <header class="sec-head">
+    <p class="kicker">Engineering dashboard</p>
+    <h2 id="dash-h">What I've <em>shipped</em></h2>
+    <p>The programs behind the numbers, with where each one ran and what it changed.</p>
+  </header>
+
+  <div class="dash">
+    <div class="dash-top">
+      <span class="dash-title"><span class="dot" aria-hidden="true"></span>Portfolio overview <small>2019 – <span data-year>{new Date().getFullYear()}</span></small></span>
+      <div class="filters" role="group" aria-label="Filter programs" data-filter-group="prog">
+        {programFilters.map(([id, label], i) => <button class="fchip" type="button" data-f={id} aria-pressed={i === 0 ? 'true' : 'false'}>{label}</button>)}
+      </div>
+    </div>
+
+    <div class="dash-grid inner">
+      <ul class="span-12 kpis" id="kpis" role="list">
+        {metrics.map((m) => (
+          <li class="kpi">
+            <span class="ic"><Icon name={m.icon} /></span>
+            <b data-count={m.value} data-pre={m.prefix} data-suf={m.suffix}>{metricText(m)}</b>
+            <span class="l">{m.label}</span>
+            <span class="c">{m.caption.toUpperCase()}</span>
+          </li>
+        ))}
+      </ul>
+
+      <div class="w span-8">
+        <div class="w-h"><h3><Icon name="list-checks" />Program portfolio</h3><span class="meta" id="prog-count" data-unit="PROGRAM">{programs.length} PROGRAMS</span></div>
+        <div class="w-b">
+          <table class="prog" id="prog" data-filter-target="prog">
+            <thead><tr><th scope="col">PROGRAM</th><th scope="col">WHERE</th><th scope="col">IMPACT</th><th scope="col">STATUS</th></tr></thead>
+            <tbody>
+              {programs.map((p) => (
+                <tr data-t={p.filters.join(' ')}>
+                  <td class="n">
+                    {'slug' in p && p.slug ? <a href={href(`/work/${p.slug}/`)}><b>{p.name}</b></a> : <b>{p.name}</b>}
+                    <span>{p.sub}</span>
+                  </td>
+                  <td class="c">{p.client}</td>
+                  <td class="s">{p.scale}</td>
+                  <td class="h"><span class={`pill ${p.tone}`}>{p.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="w span-4">
+        <div class="w-h"><h3><Icon name="network" />Scale</h3><span class="meta">ILLUSTRATIVE</span></div>
+        <div class="estate">
+          <canvas id="net" role="img" aria-label="Animated network of user traffic reaching a central platform, illustrating 20M+ monthly active users"></canvas>
+          <span class="tag"><b>20M+</b> MONTHLY USERS</span>
+        </div>
+      </div>
+
+      <div class="w span-8">
+        <div class="w-h"><h3><Icon name="chart-no-axes-column" />Measured impact</h3><span class="meta">% IMPROVEMENT</span></div>
+        <div class="w-b">
+          <ul class="impact" id="impact" role="list">
+            {impact.map((i) => (
+              <li>
+                <span class="i-label">{i.label}</span>
+                <span class="i-track" aria-hidden="true"><i style={`width:${(i.value / impactMax) * 100}%`}></i></span>
+                <b>{i.value}%</b>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div class="w span-4">
+        <div class="w-h"><h3><Icon name="pen-line" />Recent writing</h3><span class="meta">LINKEDIN</span></div>
+        <div class="w-b writing">
+          <ol class="posts">
+            {writing.map((w) => (
+              <li><span class="ts">{w.date} · {w.topic}</span><span>{w.title}</span></li>
+            ))}
+          </ol>
+          <p class="open"><b>Open to</b> {openTo}.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { startEstate } from '../scripts/estate';
+  startEstate();
+</script>
+
+<style>
+  .dash { border: 1px solid var(--line); background: var(--surface-2); border-radius: 18px; box-shadow: var(--shadow-lg); overflow: hidden; }
+  .dash-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--line); }
+  .dash-title { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+  .dash-title .dot { width: 10px; height: 10px; border-radius: 3px; background: var(--brand); }
+  .dash-title small { font-family: var(--mono); font-size: 11px; color: var(--faint); font-weight: 400; letter-spacing: .06em; }
+  .filters { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+  .filters::-webkit-scrollbar { display: none; }
+  .fchip { flex: 0 0 auto; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 5px 12px; font-size: 12.5px; font-weight: 500; color: var(--dim); }
+  .fchip[aria-pressed='true'] { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+  .inner { padding: 14px; }
+
+  .kpis { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 1040px) { .kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } }
+  .kpi { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .kpi .ic { width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); }
+  .kpi b { font-size: clamp(22px, 2.4vw, 28px); line-height: 1.05; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .kpi .l { font-size: 13px; font-weight: 500; }
+  .kpi .c { font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; color: var(--faint); }
+
+  .prog { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .prog th { font-family: var(--mono); font-size: 10.5px; letter-spacing: .09em; color: var(--faint); font-weight: 500; text-align: left; padding: 0 10px 8px 0; border-bottom: 1px solid var(--line); }
+  .prog td { padding: 11px 10px 11px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  .prog tr:last-child td { border-bottom: 0; }
+  .n a { text-decoration: none; }
+  .n a:hover b { color: var(--brand); text-decoration: underline; text-underline-offset: 3px; }
+  .n b { display: block; font-weight: 600; }
+  .n span { font-size: 12.5px; color: var(--dim); }
+  .s { font-family: var(--mono); font-size: 12.5px; color: var(--dim); white-space: nowrap; }
+  .prog :global(tr.off) { display: none; }
+  @media (max-width: 640px) {
+    .prog thead { display: none; }
+    .prog tr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .prog tr:last-child { border-bottom: 0; }
+    .prog td { border: 0; padding: 0; }
+    .c, .s { grid-column: 1 / -1; font-size: 12.5px; }
+    .c { color: var(--dim); }
+    .h { grid-row: 1; grid-column: 2; }
+  }
+
+  .estate { position: relative; min-height: 250px; flex: 1; }
+  .estate canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+  .tag { position: absolute; left: 14px; bottom: 12px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; color: var(--dim); background: var(--surface); padding: 3px 8px; border-radius: 6px; border: 1px solid var(--line); }
+  .tag b { color: var(--brand); }
+
+  .impact { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .impact li { display: grid; grid-template-columns: 170px minmax(0, 1fr) 44px; align-items: center; gap: 12px; font-size: 13.5px; }
+  .i-label { color: var(--dim); }
+  .i-track { height: 12px; border-radius: 4px; background: var(--surface-2); overflow: hidden; }
+  .i-track i { display: block; height: 100%; background: var(--brand-2); border-radius: 0 4px 4px 0; transform-origin: left; }
+  .impact b { font-family: var(--mono); font-weight: 500; text-align: right; font-variant-numeric: tabular-nums; }
+  @media (max-width: 560px) { .impact li { grid-template-columns: 124px minmax(0, 1fr) 40px; gap: 8px; font-size: 12.5px; } }
+
+  .writing { display: flex; flex-direction: column; gap: 14px; }
+  .posts { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; font-size: 14px; line-height: 1.4; }
+  .posts li { display: flex; flex-direction: column; gap: 3px; }
+  .ts { font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; color: var(--faint); }
+  .open { margin: auto 0 0; padding-top: 12px; border-top: 1px dashed var(--line); font-size: 13px; color: var(--dim); line-height: 1.45; }
+  .open b { color: var(--fg); font-weight: 600; }
+</style>
